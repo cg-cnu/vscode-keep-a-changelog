@@ -1,18 +1,62 @@
 'use strict';
 import * as vscode from 'vscode';
+import { workspace } from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
 
     let changelog = vscode.commands.registerCommand('changelog.create', () => {
-        // get the root of the current active file/workspace
-        // if the file not exists 
-        // create CHANGELOG.md
-        // ask for the release version 
-        // if exists increment the existing one
-        // ask for the type of changes...
-        // ask for the 
-        vscode.window.showInformationMessage('Hello World!');
+        const workspaces = vscode.workspace.workspaceFolders;
+        const workspaceNames = workspaces.map(workspace => workspace.name);
+        // TODO: created by admin @ 2017-11-13 14:35:48
+        // if only one workspace choose directly
+        console.log('workspaceNames', workspaceNames)
+        vscode.window.showQuickPick(workspaceNames)
+            .then(workspaceName => {
+                // get the workspace object 
+                const workspace = workspaces.find(
+                    workspace => {
+                        return workspace.name === workspaceName;
+                    }
+                )
+                console.log('workspace', workspace)
+                // create CHANGELOG.md if not exists
+                const changeLogFile = path.join(workspace.uri.fsPath, 'CHANGELOG.md')
+                if (!fs.existsSync(changeLogFile)) {
+                    fs.closeSync(fs.openSync(changeLogFile, 'a'));
+                }
+            })
+        // ask for the release version
+        // if exists increment the existing one ?
 
+        const changeTypes = [
+            'Changed: for changes in existing functionality',
+            'Deprecated: for soon-to-be removed features.',
+            'Removed: for now removed features',
+            'Fixed: for any bugs',
+            'Security: in case of vulnerabilities.']
+            
+        // ask for the type of changes...
+        vscode.window.showQuickPick(changeTypes)
+            .then(changeType => {
+                if (!changeType) {
+                    return;
+                }
+                vscode.window.showInputBox({
+                    ignoreFocusOut: true,
+                    placeHolder: 'Description here...',
+                    prompt: 'Enter the descriptions of the change'
+                }).then(description => {
+                    if (!description) {
+                        return;
+                    }
+                    console.log('changeType', changeType)
+                    console.log('description', description)
+                    // TODO: created by admin @ 2017-11-13 23:26:21
+                    // write to the file
+                })
+            })
     });
     context.subscriptions.push(changelog);
 }
