@@ -1,8 +1,8 @@
 'use strict';
 import * as vscode from 'vscode';
 import { workspace } from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import { join } from 'path';
+import { existsSync, openSync, closeSync} from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -22,9 +22,9 @@ export function activate(context: vscode.ExtensionContext) {
                 )
                 console.log('workspace', workspace)
                 // create CHANGELOG.md if not exists
-                const changeLogFile = path.join(workspace.uri.fsPath, 'CHANGELOG.md')
-                if (!fs.existsSync(changeLogFile)) {
-                    fs.closeSync(fs.openSync(changeLogFile, 'a'));
+                const changeLogFile = join(workspace.uri.fsPath, 'CHANGELOG.md')
+                if (!existsSync(changeLogFile)) {
+                    closeSync(openSync(changeLogFile, 'a'));
                 }
             })
         // ask for the release version
