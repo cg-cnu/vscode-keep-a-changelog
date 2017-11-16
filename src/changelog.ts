@@ -4,9 +4,37 @@ import { workspace } from 'vscode';
 import { join } from 'path';
 import { existsSync, openSync, closeSync } from 'fs';
 
+const changeTypes = [
+    'Changed: for changes in existing functionality',
+    'Deprecated: for soon-to-be removed features.',
+    'Removed: for now removed features',
+    'Fixed: for any bugs',
+    'Security: in case of vulnerabilities.']
+
+// ask for the type of changes...
+vscode.window.showQuickPick(changeTypes)
+    .then(changeType => {
+        if (!changeType) {
+            return;
+        }
+        vscode.window.showInputBox({
+            ignoreFocusOut: true,
+            placeHolder: 'Description here...',
+            prompt: 'Enter the descriptions of the change'
+        }).then(description => {
+            if (!description) {
+                return;
+            }
+            console.log('changeType', changeType)
+            console.log('description', description)
+            // TODO: created by admin @ 2017-11-13 23:26:21
+            // write to the file
+        })
+    })
+
 export function activate(context: vscode.ExtensionContext) {
-    var workspaceObj: string = ''
-    let changelog = vscode.commands.registerCommand('changelog.create', () => {
+    let create = vscode.commands.registerCommand('changelog.create', () => {
+        var workspaceObj;
         const workspaces = vscode.workspace.workspaceFolders;
         if (workspaces.length !== 1) {
             const workspaceNames = workspaces.map(workspace => workspace.name);
@@ -18,7 +46,6 @@ export function activate(context: vscode.ExtensionContext) {
                             return workspace.name === workspaceName;
                         }
                     )
-                    // console.log('workspace', workspace)
                 })
         } else {
             const workspaceObj = workspaces[0]
@@ -31,33 +58,6 @@ export function activate(context: vscode.ExtensionContext) {
         // ask for the release version
         // if exists increment the existing one ?
 
-        const changeTypes = [
-            'Changed: for changes in existing functionality',
-            'Deprecated: for soon-to-be removed features.',
-            'Removed: for now removed features',
-            'Fixed: for any bugs',
-            'Security: in case of vulnerabilities.']
-
-        // ask for the type of changes...
-        vscode.window.showQuickPick(changeTypes)
-            .then(changeType => {
-                if (!changeType) {
-                    return;
-                }
-                vscode.window.showInputBox({
-                    ignoreFocusOut: true,
-                    placeHolder: 'Description here...',
-                    prompt: 'Enter the descriptions of the change'
-                }).then(description => {
-                    if (!description) {
-                        return;
-                    }
-                    console.log('changeType', changeType)
-                    console.log('description', description)
-                    // TODO: created by admin @ 2017-11-13 23:26:21
-                    // write to the file
-                })
-            })
     });
-    context.subscriptions.push(changelog);
+    context.subscriptions.push(create);
 }
